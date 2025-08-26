@@ -1,0 +1,6 @@
+@KPI.WebAPI_HostAddress = http://localhost:5168
+
+GET {{KPI.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

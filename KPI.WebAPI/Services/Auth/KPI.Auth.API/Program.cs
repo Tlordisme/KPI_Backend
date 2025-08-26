@@ -24,8 +24,21 @@ namespace KPI.Auth.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+
+            // Add CORS policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    policy => policy
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+
+
             builder.Services.AddDbContext<AuthDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
             // Add UserService
             builder.Services.AddScoped<IUserService, UserService>();
@@ -111,6 +124,9 @@ namespace KPI.Auth.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            // Use CORS
+            app.UseCors("AllowAll");
+
 
             app.UseHttpsRedirection();
             app.UseRouting();

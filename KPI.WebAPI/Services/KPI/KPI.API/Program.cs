@@ -1,4 +1,4 @@
-﻿using KPI.Infrastructure;
+using KPI.Infrastructure;
 using KPI.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;

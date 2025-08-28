@@ -19,7 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KPI.Domain", "Services\KPI\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KPI.ApplicationService", "Services\KPI\KPI.ApplicationService\KPI.ApplicationService.csproj", "{74208DB3-DA92-45D9-AE44-6E4E18B2922A}"
 EndProject
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KPI.Infrastructure", "Services\KPI\KPI.Infrastructure\KPI.Infrastructure.csproj", "{0DA16C50-74EE-4E64-BF7B-89C67030D31E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{57A7A13E-0D86-4963-9410-FF0CC822A6EA}"

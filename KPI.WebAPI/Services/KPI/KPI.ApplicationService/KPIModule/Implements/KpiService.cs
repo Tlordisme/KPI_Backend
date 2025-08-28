@@ -1,0 +1,189 @@
+﻿
+using KPI.ApplicationService.KPIModule.Abstract;
+using KPI.ApplicationService.KPIModule.Dtos;
+using KPI.Domain;
+using KPI.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+namespace KPI.ApplicationService.KpiModule.Implements
+{
+    public class KpiService : IKpiService
+    {
+        private readonly KpiDbContext _context;
+
+        public KpiService(KpiDbContext context)
+        {
+            _context = context;
+        }
+
+        //KPI Template
+        public async Task<List<KpiTemplateDto>> GetAllAsync()
+        {
+            return await _context.KpiTemplates
+                .Select(t => new KpiTemplateDto
+                {
+                    Id = t.Id,
+                    TemplateName = t.TemplateName,
+                    Description = t.Description
+                }).ToListAsync();
+        }
+
+        public async Task<KpiTemplateDto?> GetByIdAsync(int id)
+        {
+            var template = await _context.KpiTemplates.FindAsync(id);
+            if (template == null) return null;
+
+            return new KpiTemplateDto
+            {
+                Id = template.Id,
+                TemplateName = template.TemplateName,
+                Description = template.Description
+            };
+        }
+
+        public async Task<KpiTemplateDto> CreateAsync(CreateKpiTemplateDto dto)
+        {
+            var template = new KPITemplate
+            {
+                TemplateName = dto.TemplateName,
+                Description = dto.Description
+            };
+
+            _context.KpiTemplates.Add(template);
+            await _context.SaveChangesAsync();
+
+            return new KpiTemplateDto
+            {
+                Id = template.Id,
+                TemplateName = template.TemplateName,
+                Description = template.Description
+            };
+        }
+
+
+
+
+
+
+
+
+        //KPI Item
+        public async Task<List<KpiItemDto>> GetAllItemsAsync()
+        {
+            return await _context.KpiItems
+                .Select(i => new KpiItemDto
+                {
+                    Id = i.Id,
+                    KpiName = i.KpiName,
+                    KpiType = i.KpiType,
+                    Weight = i.Weight,
+                    KpiTemplateId = i.KpiTemplateId,
+                    CalculationFormula = i.CalculationFormula,
+                    DeadLine = i.DeadLine
+                }).ToListAsync();
+        }
+
+        public async Task<KpiItemDto?> GetItemByIdAsync(int id)
+        {
+            var item = await _context.KpiItems.FindAsync(id);
+            if (item == null) return null;
+
+            return new KpiItemDto
+            {
+                Id = item.Id,
+                KpiName = item.KpiName,
+                KpiType = item.KpiType,
+                Weight = item.Weight,
+                KpiTemplateId = item.KpiTemplateId,
+                CalculationFormula = item.CalculationFormula,
+                DeadLine = item.DeadLine
+            };
+        }
+
+        public async Task<KpiItemDto> CreateItemAsync(CreateKpiItemDto dto, int userId)
+        {
+            var item = new KPIItem
+            {
+                KpiName = dto.KpiName,
+                KpiType = dto.KpiType,
+                Weight = dto.Weight,
+                DeadLine = dto.DeadLine,
+                KpiTemplateId = dto.KpiTemplateId,
+                CalculationFormula = dto.CalculationFormula,
+                CreatedBy = userId,
+                CreatedDate = DateTime.UtcNow
+            };
+
+            _context.KpiItems.Add(item);
+            await _context.SaveChangesAsync();
+
+            return new KpiItemDto
+            {
+                Id = item.Id,
+                KpiName = item.KpiName,
+                KpiType = item.KpiType,
+                Weight = item.Weight,
+                CalculationFormula = item.CalculationFormula,
+                KpiTemplateId = item.KpiTemplateId,
+                DeadLine = item.DeadLine
+            };
+        }
+
+        public async Task<KpiItemDto> UpdateItemAsync(int id, UpdateKpiItemDto dto, int userId)
+        {
+            var item = await _context.KpiItems.FindAsync(id);
+            if (item == null) throw new Exception("KPI Item not found");
+
+            item.KpiName = dto.KpiName;
+            item.KpiType = dto.KpiType;
+            item.Weight = dto.Weight;
+            item.DeadLine = dto.DeadLine;
+            item.KpiTemplateId = dto.KpiTemplateId;
+            item.CalculationFormula = dto.CalculationFormula;
+            item.ModifiedBy = userId;
+            item.ModifiedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return new KpiItemDto
+            {
+                Id = item.Id,
+                KpiName = item.KpiName,
+                KpiType = item.KpiType,
+                Weight = item.Weight,
+                KpiTemplateId = item.KpiTemplateId,
+                DeadLine = item.DeadLine
+            };
+        }
+
+        public async Task<bool> DeleteItemAsync(int id, int userId)
+        {
+            var item = await _context.KpiItems.FindAsync(id);
+            if (item == null) return false;
+
+            item.Deleted = true;
+            item.DeletedBy = userId;
+            item.DeletedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<List<KpiItemDto>> GetItemsByCreatorAsync(int userId)
+        {
+            return await _context.KpiItems
+                .Where(i => i.CreatedBy == userId && !i.Deleted) // chỉ lấy KPI mình tạo và chưa bị xóa
+                .Select(i => new KpiItemDto
+                {
+                    Id = i.Id,
+                    KpiName = i.KpiName,
+                    KpiType = i.KpiType,
+                    Weight = i.Weight,
+                    CalculationFormula = i.CalculationFormula,
+                    KpiTemplateId = i.KpiTemplateId,
+                    DeadLine = i.DeadLine
+                }).ToListAsync();
+        }
+
+    }
+}

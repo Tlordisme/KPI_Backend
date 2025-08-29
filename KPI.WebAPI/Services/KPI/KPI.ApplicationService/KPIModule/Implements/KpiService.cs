@@ -1,6 +1,7 @@
 ﻿
 using KPI.ApplicationService.KPIModule.Abstract;
 using KPI.ApplicationService.KPIModule.Dtos;
+using KPI.ApplicationService.KPIModule.Dtos.UnitDto;
 using KPI.Domain;
 using KPI.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ namespace KPI.ApplicationService.KpiModule.Implements
         }
 
         //KPI Template
+        #region KPI Template
         public async Task<List<KpiTemplateDto>> GetAllAsync()
         {
             return await _context.KpiTemplates
@@ -64,7 +66,9 @@ namespace KPI.ApplicationService.KpiModule.Implements
 
 
 
+        #endregion
 
+        #region KPI Item
 
 
         //KPI Item
@@ -184,6 +188,84 @@ namespace KPI.ApplicationService.KpiModule.Implements
                     DeadLine = i.DeadLine
                 }).ToListAsync();
         }
+        #endregion
 
+        //#region ApprovalLog
+
+        //#endregion
+
+        #region Unit
+        public async Task<List<UnitDto>> GetAllUnitAsync()
+        {
+            return await _context.Units
+                .Select(u => new UnitDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    HeadOfUnitId = u.HeadOfUnitId
+                }).ToListAsync();
+        }
+
+        public async Task<UnitDto?> GetUnitByIdAsync(int id)
+        {
+            var unit = await _context.Units.FindAsync(id);
+            if (unit == null) return null;
+
+            return new UnitDto
+            {
+                Id = unit.Id,
+                Name = unit.Name,
+                HeadOfUnitId = unit.HeadOfUnitId
+            };
+        }
+
+        public async Task<UnitDto> CreateAsync(CreateUnitDto dto)
+        {
+            var unit = new Unit
+            {
+                Name = dto.Name,
+                HeadOfUnitId = dto.HeadOfUnitId
+            };
+
+            _context.Units.Add(unit);
+            await _context.SaveChangesAsync();
+
+            return new UnitDto
+            {
+                Id = unit.Id,
+                Name = unit.Name,
+                HeadOfUnitId = unit.HeadOfUnitId
+            };
+        }
+
+        public async Task<UnitDto?> UpdateAsync(int id, UpdateUnitDto dto)
+        {
+            var unit = await _context.Units.FindAsync(id);
+            if (unit == null) return null;
+
+            unit.Name = dto.Name;
+            unit.HeadOfUnitId = dto.HeadOfUnitId;
+
+            await _context.SaveChangesAsync();
+
+            return new UnitDto
+            {
+                Id = unit.Id,
+                Name = unit.Name,
+                HeadOfUnitId = unit.HeadOfUnitId
+            };
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var unit = await _context.Units.FindAsync(id);
+            if (unit == null) return false;
+
+            _context.Units.Remove(unit);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        #endregion
     }
 }

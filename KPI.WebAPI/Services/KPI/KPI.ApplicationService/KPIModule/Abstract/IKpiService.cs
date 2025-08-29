@@ -1,4 +1,6 @@
 ﻿using KPI.ApplicationService.KPIModule.Dtos;
+using KPI.ApplicationService.KPIModule.Dtos.UnitDto;
+using KPI.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,7 @@ namespace KPI.ApplicationService.KPIModule.Abstract
     public interface IKpiService
     {
         //KPI TEMPLATE
+        #region KPITemplate
         Task<List<KpiTemplateDto>> GetAllAsync();
         Task<KpiTemplateDto?> GetByIdAsync(int id);
         Task<KpiTemplateDto> CreateAsync(CreateKpiTemplateDto dto);
@@ -18,11 +21,10 @@ namespace KPI.ApplicationService.KPIModule.Abstract
 
 
 
+        #endregion
 
+        #region KPIITem
 
-
-
-        //KPI ITEM
         //Lấy toàn bộ KPI items trong hệ thống.
         Task<List<KpiItemDto>> GetAllItemsAsync();
         //Lấy chi tiết KPI item theo Id.
@@ -35,6 +37,25 @@ namespace KPI.ApplicationService.KPIModule.Abstract
         Task<bool> DeleteItemAsync(int id, int userId);
         //Lấy danh sách KPI items mà chính user đã tạo.
         Task<List<KpiItemDto>> GetItemsByCreatorAsync(int userId);
+
+        #endregion
+
+        #region KPIAssignment
+        //Task<KpiAssignmentDto> AssignKpiAsync(int assignedByUserId, KpiAssignmentCreateDto dto);
+        //Task<ApprovalLogDto> ApproveOrRejectAsync(int approverId, ApprovalActionDto dto);
+        //Task<List<KpiAssignmentDto>> GetAssignmentsByUserAsync(int userId);
+        //Task<List<KpiAssignmentDto>> GetAssignmentsByUnitAsync(int unitId);
+        #endregion
+
+
+        #region Unit
+        Task<List<UnitDto>> GetAllUnitAsync();
+        Task<UnitDto?> GetUnitByIdAsync(int id);
+        Task<UnitDto> CreateAsync(CreateUnitDto dto);
+        Task<UnitDto?> UpdateAsync(int id, UpdateUnitDto dto);
+        Task<bool> DeleteAsync(int id);
+        #endregion
+
 
     }
 }

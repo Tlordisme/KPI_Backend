@@ -17,7 +17,7 @@ namespace KPI.API.Controllers
         {
             _approvalService = approvalService;
         }
-
+        
         [HttpPost]
         public async Task<IActionResult> Approve([FromBody] ApproveKpiAssignmentDto dto)
         {

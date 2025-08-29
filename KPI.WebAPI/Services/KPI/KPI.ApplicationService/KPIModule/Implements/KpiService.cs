@@ -1,6 +1,8 @@
 ﻿
 using KPI.ApplicationService.KPIModule.Abstract;
 using KPI.ApplicationService.KPIModule.Dtos;
+using KPI.ApplicationService.KPIModule.Dtos.ApprovalDto;
+using KPI.ApplicationService.KPIModule.Dtos.KpiAssignmentDto;
 using KPI.ApplicationService.KPIModule.Dtos.UnitDto;
 using KPI.Domain;
 using KPI.Infrastructure.Persistence;
@@ -190,12 +192,179 @@ namespace KPI.ApplicationService.KpiModule.Implements
         }
         #endregion
 
-        //#region ApprovalLog
+        #region ApprovalLog
+        public async Task<ApprovalLogDto> ApproveAsync(ApproveKpiAssignmentDto dto, int approverId)
+        {
+            var assignment = await _context.KpiAssignments.FindAsync(dto.AssignmentId);
+            if (assignment == null) throw new Exception("Assignment not found");
 
-        //#endregion
+            // Cập nhật trạng thái
+            assignment.Status = dto.Action;
+            assignment.ModifiedBy = approverId;
+            assignment.ModifiedDate = DateTime.UtcNow;
+
+            // Log lại
+            var log = new ApprovalLog
+            {
+                KpiAssignmentId = assignment.Id,
+                UserId = approverId,
+                Action = dto.Action,
+                Comment = dto.Comment,
+                Timestamp = DateTime.UtcNow
+            };
+
+            _context.ApprovalLogs.Add(log);
+            await _context.SaveChangesAsync();
+
+            return new ApprovalLogDto
+            {
+                Id = log.Id,
+                KpiAssignmentId = log.KpiAssignmentId,
+                UserId = log.UserId,
+                Action = log.Action,
+                Comment = log.Comment,
+                Timestamp = log.Timestamp
+            };
+        }
+
+        public async Task<List<ApprovalLogDto>> GetLogsByAssignmentIdAsync(int assignmentId)
+        {
+            return await _context.ApprovalLogs
+                .Where(l => l.KpiAssignmentId == assignmentId)
+                .Select(l => new ApprovalLogDto
+                {
+                    Id = l.Id,
+                    KpiAssignmentId = l.KpiAssignmentId,
+                    UserId = l.UserId,
+                    Action = l.Action,
+                    Comment = l.Comment,
+                    Timestamp = l.Timestamp
+                }).ToListAsync();
+        }
+        #endregion
+
+
+        #region Assignment
+        public async Task<KpiAssignmentDto> AssignAsync(CreateKpiAssignmentDto dto, int createdBy)
+        {
+            var entity = new KPIAssignment
+            {
+                UserId = dto.UserId,
+                UnitId = dto.UnitId,
+                KpiItemId = dto.KpiItemId,
+                TargetValue = dto.TargetValue,
+                ContributionWeight = dto.ContributionWeight,
+                Year = dto.Year,
+                Status = "Pending",
+                CreatedByUserId = createdBy,
+                CreatedDate = DateTime.UtcNow
+            };
+
+            _context.KpiAssignments.Add(entity);
+            await _context.SaveChangesAsync();
+
+            return new KpiAssignmentDto
+            {
+                Id = entity.Id,
+                UserId = entity.UserId,
+                UnitId = entity.UnitId,
+                KpiItemId = entity.KpiItemId,
+                TargetValue = entity.TargetValue,
+                ContributionWeight = entity.ContributionWeight,
+                Status = entity.Status,
+                Year = entity.Year
+            };
+        }
+
+        public async Task<KpiAssignmentDto?> GetAssignmentByIdAsync(int id)
+        {
+            var entity = await _context.KpiAssignments.FindAsync(id);
+            if (entity == null) return null;
+
+            return new KpiAssignmentDto
+            {
+                Id = entity.Id,
+                UserId = entity.UserId,
+                UnitId = entity.UnitId,
+                KpiItemId = entity.KpiItemId,
+                TargetValue = entity.TargetValue,
+                ContributionWeight = entity.ContributionWeight,
+                ActualResults = entity.ActualResults,
+                ComponentScore = entity.ComponentScore,
+                Status = entity.Status,
+                Year = entity.Year
+            };
+        }
+
+        public async Task<List<KpiAssignmentDto>> GetAssignmentByUserAsync(int userId)
+        {
+            return await _context.KpiAssignments
+                .Where(a => a.UserId == userId)
+                .Select(a => new KpiAssignmentDto
+                {
+                    Id = a.Id,
+                    UserId = a.UserId,
+                    UnitId = a.UnitId,
+                    KpiItemId = a.KpiItemId,
+                    TargetValue = a.TargetValue,
+                    ContributionWeight = a.ContributionWeight,
+                    ActualResults = a.ActualResults,
+                    ComponentScore = a.ComponentScore,
+                    Status = a.Status,
+                    Year = a.Year
+                }).ToListAsync();
+        }
+
+        public async Task<List<KpiAssignmentDto>> GetAssignmentByUnitAsync(int unitId)
+        {
+            return await _context.KpiAssignments
+                .Where(a => a.UnitId == unitId)
+                .Select(a => new KpiAssignmentDto
+                {
+                    Id = a.Id,
+                    UserId = a.UserId,
+                    UnitId = a.UnitId,
+                    KpiItemId = a.KpiItemId,
+                    TargetValue = a.TargetValue,
+                    ContributionWeight = a.ContributionWeight,
+                    ActualResults = a.ActualResults,
+                    ComponentScore = a.ComponentScore,
+                    Status = a.Status,
+                    Year = a.Year
+                }).ToListAsync();
+        }
+
+        public async Task<KpiAssignmentDto?> UpdateAssignmentAsync(int id, UpdateKpiAssignmentDto dto, int modifiedBy)
+        {
+            var entity = await _context.KpiAssignments.FindAsync(id);
+            if (entity == null) return null;
+
+            entity.TargetValue = dto.TargetValue;
+            entity.ContributionWeight = dto.ContributionWeight;
+            entity.Status = dto.Status;
+            entity.ModifiedBy = modifiedBy;
+            entity.ModifiedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return new KpiAssignmentDto
+            {
+                Id = entity.Id,
+                UserId = entity.UserId,
+                UnitId = entity.UnitId,
+                KpiItemId = entity.KpiItemId,
+                TargetValue = entity.TargetValue,
+                ContributionWeight = entity.ContributionWeight,
+                ActualResults = entity.ActualResults,
+                ComponentScore = entity.ComponentScore,
+                Status = entity.Status,
+                Year = entity.Year
+            };
+        }
+            #endregion
 
         #region Unit
-        public async Task<List<UnitDto>> GetAllUnitAsync()
+            public async Task<List<UnitDto>> GetAllUnitAsync()
         {
             return await _context.Units
                 .Select(u => new UnitDto
@@ -267,5 +436,7 @@ namespace KPI.ApplicationService.KpiModule.Implements
         }
 
         #endregion
+
+
     }
 }

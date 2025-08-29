@@ -1,4 +1,6 @@
 ﻿using KPI.ApplicationService.KPIModule.Dtos;
+using KPI.ApplicationService.KPIModule.Dtos.ApprovalDto;
+using KPI.ApplicationService.KPIModule.Dtos.KpiAssignmentDto;
 using KPI.ApplicationService.KPIModule.Dtos.UnitDto;
 using KPI.Domain;
 using System;
@@ -41,12 +43,17 @@ namespace KPI.ApplicationService.KPIModule.Abstract
         #endregion
 
         #region KPIAssignment
-        //Task<KpiAssignmentDto> AssignKpiAsync(int assignedByUserId, KpiAssignmentCreateDto dto);
-        //Task<ApprovalLogDto> ApproveOrRejectAsync(int approverId, ApprovalActionDto dto);
-        //Task<List<KpiAssignmentDto>> GetAssignmentsByUserAsync(int userId);
-        //Task<List<KpiAssignmentDto>> GetAssignmentsByUnitAsync(int unitId);
+        Task<KpiAssignmentDto> AssignAsync(CreateKpiAssignmentDto dto, int createdBy);
+        Task<KpiAssignmentDto?> GetAssignmentByIdAsync(int id);
+        Task<List<KpiAssignmentDto>> GetAssignmentByUserAsync(int userId);
+        Task<List<KpiAssignmentDto>> GetAssignmentByUnitAsync(int unitId);
+        Task<KpiAssignmentDto?> UpdateAssignmentAsync(int id, UpdateKpiAssignmentDto dto, int modifiedBy);
         #endregion
 
+        #region Approval
+        Task<ApprovalLogDto> ApproveAsync(ApproveKpiAssignmentDto dto, int approverId);
+        Task<List<ApprovalLogDto>> GetLogsByAssignmentIdAsync(int assignmentId);
+        #endregion
 
         #region Unit
         Task<List<UnitDto>> GetAllUnitAsync();
